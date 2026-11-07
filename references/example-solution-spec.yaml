@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.1/references/solution-spec.schema.json
+format: https://github.com/clarabstract/solution-planner/blob/v0.1/references/solution-spec-format.md
+
+problem: >
+  A bookkeeper at a small firm chases overdue invoices by hand,
+  checking the billing system each week and writing every email.
+  Reminders go out late or not at all. Success means overdue clients
+  hear from the firm on time without the bookkeeper writing each
+  message.
+budget: About a day of review
+stakes: >
+  A wrong reminder embarrasses the firm with a client, but no money
+  moves
+
+components:
+  billing-service:
+    kind: service
+    action: modify
+    purpose: Tracks invoices until they are paid
+    owns: [invoices, payment status, reminder history]
+    does-not: [decide who gets reminded, contact clients]
+    requirements:
+      - remind.at-most-weekly
+      - report.what-went-out
+      - integrations.weekly-round
+    location: https://example.com/billing-service
+    changes:
+      - adds an operation to list overdue invoices
+      - adds a reminder history
+    affects: [accounting-export]
+    breaking: false
+  send-reminders:
+    kind: script
+    action: build
+    purpose: Runs the weekly round of reminders
+    owns: [which invoices are due a reminder]
+    does-not: [write the wording, store history]
+    requirements:
+      - remind.after-a-week
+      - remind.at-most-weekly
+      - integrations.weekly-round
+    why-separate: >
+      Deterministic logic that changes on its own schedule, separate
+      from billing data
+  write-reminder:
+    kind: skill
+    action: build
+    purpose: Writes the wording of one reminder
+    owns: [tone rules]
+    does-not: [send anything, decide who gets reminded]
+    requirements:
+      - remind.gentler-for-long-standing
+      - integrations.weekly-round
+    why-separate: Judgement logic, kept apart from the script
+  email-provider:
+    kind: service
+    action: external
+    purpose: Delivers email
+    location: https://example.com/email-provider
+    relied-on-for: [delivery, bounce reports]
+    replace-with: >
+      Any provider with a send API, changing only the sending step of
+      the script
+
+connections:
+  script-reads-billing:
+    from: send-reminders
+    to: billing-service
+    uses: [list overdue invoices, record a reminder]
+    contract-owner: billing-service
+  script-gets-wording:
+    from: send-reminders
+    to: write-reminder
+    uses: [draft wording for an invoice]
+    contract-owner: write-reminder
+  script-sends-email:
+    from: send-reminders
+    to: email-provider
+    uses: [send an email]
+    contract-owner: email-provider
+
+constraints:
+  existing-billing:
+    statement: Overdue status comes from the existing billing service
+
+no-gos:
+  taking-payment:
+    statement: Taking payment from within a reminder
+  multiple-contacts:
+    statement: More than one email address per client for invoices

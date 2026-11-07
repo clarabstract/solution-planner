@@ -1,0 +1,255 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/clarabstract/solution-planner/v0.1/references/solution-spec.schema.json",
+  "title": "Solution spec",
+  "description": "How a solution breaks down into components: what each one is for, what it owns and how they connect. This covers the shape of the file. Checks across files and keys are listed in the format reference.",
+  "type": "object",
+  "required": ["format", "problem", "budget", "stakes", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "description": "Link to this version of the format reference. Always the first field, so anyone who finds the file can tell what it is.",
+      "const": "https://github.com/clarabstract/solution-planner/blob/v0.1/references/solution-spec-format.md"
+    },
+    "problem": {
+      "description": "Who has the problem, how they cope today, and what success looks like, in a few sentences.",
+      "$ref": "#/definitions/text"
+    },
+    "budget": {
+      "description": "The human attention this is worth. Limits the whole spec and its requirement files, not just the component count.",
+      "$ref": "#/definitions/text"
+    },
+    "stakes": {
+      "description": "What happens if it goes wrong. Sets how rigorous later specs and tests need to be.",
+      "$ref": "#/definitions/text"
+    },
+    "components": {
+      "description": "The breakdown, keyed by component.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/definitions/key" },
+      "additionalProperties": { "$ref": "#/definitions/component" }
+    },
+    "connections": {
+      "description": "Who calls whom. Leave this out if it would be empty.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/definitions/key" },
+      "additionalProperties": { "$ref": "#/definitions/connection" }
+    },
+    "constraints": {
+      "description": "What the request dictates about the solution. Leave this out if it would be empty.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/definitions/key" },
+      "additionalProperties": { "$ref": "#/definitions/statement" }
+    },
+    "no-gos": {
+      "description": "What's deliberately out of this plan. Leave this out if it would be empty.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/definitions/key" },
+      "additionalProperties": { "$ref": "#/definitions/statement" }
+    }
+  },
+  "definitions": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "key": {
+      "description": "A stable kebab-case key.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "requirementKey": {
+      "description": "A key written as activity.name, which maps to requirements/activity/name.feature. Integrations use the reserved integrations group.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "textList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/definitions/text" }
+    },
+    "statement": {
+      "type": "object",
+      "required": ["statement"],
+      "additionalProperties": false,
+      "properties": {
+        "statement": { "$ref": "#/definitions/text" }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": ["from", "to", "uses", "contract-owner"],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "description": "The component that depends on `to`.",
+          "$ref": "#/definitions/key"
+        },
+        "to": {
+          "description": "The component `from` depends on.",
+          "$ref": "#/definitions/key"
+        },
+        "uses": {
+          "description": "Capabilities used. These aren't final operation names, which come from the component's own spec.",
+          "$ref": "#/definitions/textList"
+        },
+        "contract-owner": {
+          "description": "Whichever of `from` or `to` defines the contract, and always the external side if there is one.",
+          "$ref": "#/definitions/key"
+        }
+      }
+    },
+    "component": {
+      "type": "object",
+      "required": ["kind", "action", "purpose"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "What type of component it is.",
+          "enum": ["service", "skill", "library", "script", "ui", "workflow"]
+        },
+        "action": {
+          "description": "What this plan does with it. build: we make it new. reuse: we control it and use it unchanged. modify: we control it and change it. external: someone else controls it, and we use it.",
+          "enum": ["build", "reuse", "modify", "external"]
+        },
+        "purpose": {
+          "description": "One sentence with no \"and\".",
+          "$ref": "#/definitions/text"
+        },
+        "owns": {
+          "description": "Data and rules it owns. If a requirement is shared, each component's part shows here.",
+          "$ref": "#/definitions/textList"
+        },
+        "does-not": {
+          "description": "What it deliberately doesn't do.",
+          "$ref": "#/definitions/textList"
+        },
+        "requirements": {
+          "description": "Keys of the requirements and integrations it's responsible for. A shared requirement is listed on each component involved.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/requirementKey" }
+        },
+        "why-separate": {
+          "description": "Which split reason applies, and how. Not needed if it's the only component being built.",
+          "$ref": "#/definitions/text"
+        },
+        "location": {
+          "description": "Where it's found: repo, package or URL.",
+          "$ref": "#/definitions/text"
+        },
+        "changes": {
+          "description": "What's different.",
+          "$ref": "#/definitions/textList"
+        },
+        "affects": {
+          "description": "Who already depends on it, whether or not they're in this plan.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/text" }
+        },
+        "breaking": {
+          "description": "Whether the change breaks them.",
+          "type": "boolean"
+        },
+        "purpose-change": {
+          "description": "What the purpose was, if the change alters it.",
+          "$ref": "#/definitions/text"
+        },
+        "relied-on-for": {
+          "description": "What this plan needs from it.",
+          "$ref": "#/definitions/textList"
+        },
+        "replace-with": {
+          "description": "How you'd replace it, and what would have to change.",
+          "$ref": "#/definitions/text"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["action"],
+            "properties": { "action": { "const": "build" } }
+          },
+          "then": {
+            "required": ["owns", "does-not", "requirements"],
+            "properties": {
+              "location": false,
+              "changes": false,
+              "affects": false,
+              "breaking": false,
+              "purpose-change": false,
+              "relied-on-for": false,
+              "replace-with": false
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["action"],
+            "properties": { "action": { "const": "reuse" } }
+          },
+          "then": {
+            "required": ["owns", "does-not", "location"],
+            "properties": {
+              "why-separate": false,
+              "changes": false,
+              "affects": false,
+              "breaking": false,
+              "purpose-change": false,
+              "relied-on-for": false,
+              "replace-with": false
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["action"],
+            "properties": { "action": { "const": "modify" } }
+          },
+          "then": {
+            "required": [
+              "owns",
+              "does-not",
+              "requirements",
+              "location",
+              "changes",
+              "affects",
+              "breaking"
+            ],
+            "properties": {
+              "why-separate": false,
+              "relied-on-for": false,
+              "replace-with": false
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["action"],
+            "properties": { "action": { "const": "external" } }
+          },
+          "then": {
+            "required": ["location", "relied-on-for", "replace-with"],
+            "properties": {
+              "owns": false,
+              "does-not": false,
+              "requirements": false,
+              "why-separate": false,
+              "changes": false,
+              "affects": false,
+              "breaking": false,
+              "purpose-change": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}
