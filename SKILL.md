@@ -12,19 +12,21 @@ The most important thing you produce is a boundary someone has actually decided 
 
 This skill plans and stops. Don't write the components' own specs or any code.
 
+It also owns every later change to the plan. Once a spec is approved, nobody edits it by hand: a problem found later comes back as a finding, and bringing a spec up to the current format is a change like any other. See [Revising a plan](#revising-a-plan).
+
 Web search is required, because finding existing tools is part of the job. If you don't have it, stop and say so rather than quietly skipping that step.
 
 ## Reference files
 
 - [references/solution-spec-format.md](references/solution-spec-format.md): the format of the output, including component kinds and actions, what makes a good requirement, and the checks. Read it before step 3.
-- [references/solution-spec.schema.json](references/solution-spec.schema.json): the machine-readable version of the format's fields. Validate against it in step 7 if you have a validator.
+- [references/solution-spec.schema.json](references/solution-spec.schema.json): the machine-readable version of the format's fields. Validate the draft against it in step 8 if you have a validator.
 - [references/breakdown-criteria.md](references/breakdown-criteria.md): what makes a good breakdown. Read it before step 4.
 - [references/example-solution-spec.yaml](references/example-solution-spec.yaml): a finished spec for an unrelated problem. It shows the shape; don't borrow its components.
-- [assets/solution-folder/](assets/solution-folder/): files to copy into the solution folder in step 9. They keep test cases out of later work.
+- [assets/solution-folder/](assets/solution-folder/): files to copy into the solution folder in step 10. They keep test cases out of later work and tell other agents the folder belongs to this skill.
 
 ## Flow
 
-If there's no request yet, ask for the problem before reading anything, because what's worth reading depends on it.
+If there's no request yet, ask for the problem before reading anything, because what's worth reading depends on it. If instead you're given an approved solution folder, with a finding in it or a change the person wants, go to [Revising a plan](#revising-a-plan).
 
 1. **Read the request and the repo,** to learn what already exists, so you don't ask what you can find out for yourself. The request stays in the session only. The spec replaces it and doesn't include a copy, because later stages read the spec and requests often contain examples they shouldn't see.
 
@@ -38,18 +40,47 @@ If there's no request yet, ask for the problem before reading anything, because 
 
 6. **Settle the boundaries.** For each one that's hard to reverse or could reasonably go another way, state the closest alternative and what would make it the better choice. If there isn't a real alternative, say so. An invented one looks rigorous and tells the reader nothing. These go in the summary, not the spec. If a choice wouldn't otherwise show in the spec, write it as a requirement, constraint or no-go, so later work can't quietly re-decide it. A rule the person stated is a requirement and isn't a choice to present, and implementation choices, like hosting, libraries and protocols, wait for each component's own spec unless a constraint dictates them.
 
-7. **Run the checks** in the format reference. Nothing enforces them except you, so go through each one.
+7. **Write the draft.** Ask which folder to use. Its name and location are up to the person, but it has to be new or empty, because the files you'll write could clash with anything already there. If it isn't, ask for another. Write only `solution-spec.draft.yaml`, copying its first line and the `format` value from the top of the format reference. The draft gives the person something to refer to during review. Its name keeps it from being mistaken for an approved spec, because later stages only read `solution-spec.yaml`.
 
-8. **Summarise in plain language and wait for approval.** People approve a breakdown more carefully in prose than in YAML. Cover the components, what each owns, the requirement and integration statements, the boundary choices they might want to overrule, and anything you left out of the request, since a wrongly dropped part can't be caught later. Write nothing final before they approve.
+8. **Run the checks** in the format reference against the draft, except the ones on requirement files, which don't exist yet. Nothing enforces them except you, so go through each one.
 
-9. **Write the solution folder.** Ask which folder to use. Its name and location are up to the person, but it has to be new or empty, because these files could clash with anything already there. If it isn't, ask for another. Then:
-   - Write `solution-spec.yaml`, copying its first line and the `format` value from the top of the format reference.
-   - Write a requirement file with draft test cases for each requirement and integration.
-   - Copy everything in [assets/solution-folder/](assets/solution-folder/), including `.ignore`.
+9. **Summarise in plain language and wait for approval.** People approve a breakdown more carefully in prose than in YAML, so the draft is for reference and the summary is what they decide on. Cover:
+   - the components and what each owns
+   - the requirement and integration statements, since the draft only holds their keys
+   - the boundary choices they might want to overrule
+   - anything you left out of the request, since a wrongly dropped part can't be caught later
+   - what you inferred rather than were told, each with its key, its statement and a `path:line` citation in the draft, found by searching the file. Keep track of these throughout the run
+   - any provisional decisions and anything unresolved
 
-10. **Report what the spec doesn't show.** Throughout the run, keep track of what you inferred rather than were told, and which entry each inference ended up in. Once the files are written, list each inference with its key, its statement and a `path:line` citation, finding the line by searching the written files. Also list any provisional decisions and anything unresolved. This is the only place these get reviewed, because the spec holds the result and not how it was reached. If the person objects to any of them, go back to the earliest step affected and revise the spec.
+   This is the only place inferences, provisional decisions and unresolved points get reviewed, because the spec holds the result and not how it was reached. If the person objects to anything, go back to the earliest step affected and revise the draft. If they edit the draft themselves, read it again before going on. Write nothing else before they approve.
+
+10. **Write the solution folder.** Once the person approves:
+    - Rename `solution-spec.draft.yaml` to `solution-spec.yaml`.
+    - Write a requirement file with draft test cases for each requirement and integration.
+    - Copy everything in [assets/solution-folder/](assets/solution-folder/), including `.ignore` and `.gitignore`.
+    - Run the checks on requirement files.
 
 11. **Hand the cases over for review.** The test cases are drafts until a person has reviewed them, and you can't stand in for that review. Ask them to read the spec first, then the requirement files, and to add any cases they think are missing, by hand or with your help. Tell them to start later stages in a new session, because a chat can't forget the cases it has seen.
+
+## Revising a plan
+
+The plan stays live after approval. A later stage, or the person, can find that part of it is wrong: a boundary that has to move, stakes that turn out higher, a missing requirement. Or the format has moved on and the spec is pinned to an older version. Either way you make the change, rather than anyone editing the spec by hand, so the same questions and checks apply.
+
+**Findings.** A later stage reports a problem as a short Markdown file in `findings/` beside the spec, then stops. It holds the key of the component it came from, if any; what was found, with a `path:line` citation in the work that found it; what it affects, such as `stakes`, a component's `owns` or `does-not`, a connection, a requirement, or whether a component should exist at all; and a suggested change, optionally. A plan with a file in `findings/` isn't usable until you've dealt with it. Findings are working files, not part of the record, so the folder's `.gitignore` keeps them out of version control.
+
+Run in a fresh session, because you'll read requirement files and the finder's session has to stay clear of cases.
+
+1. **Read the spec, the finding and what it cites.** With no finding, the person tells you what to change. If `format` points at an older version of the format reference, read that version too, so you know what changed between them.
+2. **Work out what it changes,** asking questions as in [Asking questions](#asking-questions). A finding is evidence, not a decision: the person decides, and you can recommend against it. A format update changes only what the new format requires. Anything else it tempts you to improve is a separate change to propose.
+3. **Write the change** as `solution-spec.draft.yaml` beside the approved spec, against the current format reference, with `format` and the schema comment updated.
+4. **Run the checks** against the draft, except those on requirement files.
+5. **Summarise and wait for approval:** what changes and why, and what it knocks on to. That means components whose own specs may now be out of date, requirement files added, removed or with a changed statement, and anything already built that may break. Cases under a changed statement go back to draft and need review again.
+6. **On approval,** rename the draft over `solution-spec.yaml`, update the requirement files, copy in anything from [assets/solution-folder/](assets/solution-folder/) the folder is missing or that has changed, delete the finding, and run the requirement-file checks. A removed key is never reused.
+7. **Report** which components need their specs revisited, so the finder knows where to pick up.
+
+If the person rejects the change, delete the finding, which makes the plan usable again. The finder carries on within the approved plan, or writes a new finding if it can't.
+
+As with the first plan, the spec holds the result, not how it was reached. The reason for a revision lives in your summary, and in the commit if the folder is under version control.
 
 ## Asking questions
 

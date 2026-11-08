@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/clarabstract/solution-planner/v0.1/references/solution-spec.schema.json",
+  "$id": "https://raw.githubusercontent.com/clarabstract/solution-planner/v0.2/references/solution-spec.schema.json",
   "title": "Solution spec",
   "description": "How a solution breaks down into components: what each one is for, what it owns and how they connect. This covers the shape of the file. Checks across files and keys are listed in the format reference.",
   "type": "object",
@@ -9,7 +9,7 @@
   "properties": {
     "format": {
       "description": "Link to this version of the format reference. Always the first field, so anyone who finds the file can tell what it is.",
-      "const": "https://github.com/clarabstract/solution-planner/blob/v0.1/references/solution-spec-format.md"
+      "const": "https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md"
     },
     "problem": {
       "description": "Who has the problem, how they cope today, and what success looks like, in a few sentences.",

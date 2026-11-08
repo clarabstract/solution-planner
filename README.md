@@ -14,7 +14,8 @@ A new folder, wherever you choose, with:
 
 - `solution-spec.yaml`: the components, what each one owns, how they connect, constraints and no-gos
 - `requirements/`: one Gherkin file per requirement, with draft test cases for you to review
-- `AGENTS.md`, `.ignore` and two scripts: these keep the test cases out of later work. They make overfitting less likely, but they won't stop an agent that tries to get around them
+- `AGENTS.md`, `.ignore` and two scripts: these keep the test cases out of later work. They make overfitting less likely, but they won't stop an agent that tries to get around them. `AGENTS.md` also tells agents the folder belongs to this skill and how to report a problem with the plan
+- `.gitignore`: keeps `findings/`, where later work reports those problems, out of version control
 
 ## Install
 
@@ -42,9 +43,11 @@ I've only really run this with one agent so far, so it may need some tweaking on
 Ask your agent to plan or break down something new. A rough description is fine.
 
 - It asks questions one at a time, each with a recommendation
-- It summarises the breakdown in plain language and waits for your approval before writing anything final
-- It lists what it inferred, so you can object
+- It writes a draft spec, `solution-spec.draft.yaml`, for you to refer to, then summarises the breakdown in plain language and waits for your approval
+- The summary lists what it inferred, with where each inference ended up in the draft, so you can object before anything is final
+- Once you approve, it renames the draft to `solution-spec.yaml` and writes the requirement files
 - You review the draft test cases, then start later work in a new session
+- After approval, the plan changes only through the skill. Later work that finds a problem writes it to `findings/` and stops; you then ask the skill to revise the plan in a new session. Bringing a spec written against an older format up to date works the same way
 
 ## Versions
 

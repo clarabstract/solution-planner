@@ -1,13 +1,13 @@
 # Solution spec format
 
-A solution spec is a YAML file describing how a solution breaks down into components: what each one is for, what it owns and how they connect. It's named `solution-spec.yaml` and has a folder to itself, with its requirements in [separate files](#requirement-files) beside it. If you've found one in a repo, it records the boundaries someone approved before the parts were specified or built.
+A solution spec is a YAML file describing how a solution breaks down into components: what each one is for, what it owns and how they connect. It's named `solution-spec.yaml` and has a folder to itself. While it's still being reviewed it's named `solution-spec.draft.yaml`, and later stages ignore it until it's renamed. Its requirements are in [separate files](#requirement-files) beside it. If you've found one in a repo, it records the boundaries someone approved before the parts were specified or built. Problems found after approval are raised as files in a `findings/` folder beside it, and the spec itself changes only through the solution planner.
 
-**This version's link:** `https://github.com/clarabstract/solution-planner/blob/v0.1/references/solution-spec-format.md`
+**This version's link:** `https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md`
 
 **First line of every spec:** this comment points editors that use the [YAML language server](https://github.com/redhat-developer/yaml-language-server) at [the schema](solution-spec.schema.json), which gives them validation, autocomplete and field descriptions.
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.1/references/solution-spec.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.2/references/solution-spec.schema.json
 ```
 
 The spec stays at boundary level: it says what a component owns, not how it works. Implementation choices, like hosting, libraries and protocols, wait for each component's own spec unless a constraint dictates them. It holds what was approved, not how that was reached: where things came from, alternatives and unknowns are reviewed during planning and stay there.
@@ -24,7 +24,7 @@ Fields appear in this order, so the file reads from what's being built down to t
 
 | Field | Required | Holds |
 | --- | --- | --- |
-| `format` | Yes | Link to this version of this reference. Always the first field, so anyone who finds the file can tell what it is |
+| `format` | Yes | Link to this version of this reference. Always the first field, so anyone who finds the file can tell what it is. An older link means the spec predates this version, and the planner brings it up to date as a revision |
 | `problem` | Yes | Who has the problem, how they cope today, and what success looks like, in a few sentences |
 | `budget` | Yes | The human attention this is worth. Limits the whole spec, not just the component count |
 | `stakes` | Yes | What happens if it goes wrong. Sets how rigorous later specs and tests need to be |
@@ -121,8 +121,9 @@ A later chat that loads the cases could overfit to them without meaning to. The 
 | File | What it does |
 | --- | --- |
 | `scripts/list-requirement-statements.ps1` and `.sh` | Print every statement at once, without the cases, so later stages have no need to open the files. One is for Windows, the other for macOS and Linux, and neither needs anything installed |
-| `AGENTS.md` | Asks agents to leave `requirements/` alone unless they're planning the solution or editing cases at the user's request |
+| `AGENTS.md` | Says the folder belongs to the planner except `findings/`, how to raise a finding and where to get the skill, and asks agents to leave `requirements/` alone unless they're planning the solution or editing cases at the user's request |
 | `.ignore` | Keeps cases out of searches by tools that honour it, such as ripgrep. It doesn't stop direct reads |
+| `.gitignore` | Keeps `findings/` out of version control. Findings are working files, and the spec diff shows what changed |
 | `requirements/AGENTS.md` | Tells an agent that has opened a case to stop and tell the user |
 
 Later stages should start in a new session and repeat the request in their own instructions, because not every agent or subagent loads `AGENTS.md`.
@@ -207,6 +208,7 @@ An approved spec passes all of these:
 
 - **Schema:** the file matches [the schema](solution-spec.schema.json), which covers fields and values but not the checks below that span keys or files.
 - **Format link:** `format` points at a fixed version of this reference, such as a tag, never a moving branch.
+- **No open findings:** `findings/` is empty or absent.
 - **References:** every key mentioned exists, and points at the right section.
 - **Requirement files:** every listed key has a file at its path, every file in a group folder has a key, and each file is valid Gherkin with its key as the Feature title, a statement and at least one case.
 - **Fields:** each entry has the fields its section and action require, and no others.

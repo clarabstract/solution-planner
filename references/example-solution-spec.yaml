@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.1/references/solution-spec.schema.json
-format: https://github.com/clarabstract/solution-planner/blob/v0.1/references/solution-spec-format.md
+# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.2/references/solution-spec.schema.json
+format: https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md
 
 problem: >
   A bookkeeper at a small firm chases overdue invoices by hand,
