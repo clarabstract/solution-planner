@@ -72,13 +72,13 @@ Run in a fresh session, because you'll read requirement files and the finder's s
 
 1. **Read the spec, the finding and what it cites.** With no finding, the person tells you what to change. If `format` points at an older version of the format reference, read that version too, so you know what changed between them.
 2. **Work out what it changes,** asking questions as in [Asking questions](#asking-questions). A finding is evidence, not a decision: the person decides, and you can recommend against it. A format update changes only what the new format requires. Anything else it tempts you to improve is a separate change to propose.
-3. **Write the change** as `solution-spec.draft.yaml` beside the approved spec, against the current format reference, with `format` and the schema comment updated.
-4. **Run the checks** against the draft, except those on requirement files.
-5. **Summarise and wait for approval:** what changes and why, and what it knocks on to. That means components whose own specs may now be out of date, requirement files added, removed or with a changed statement, and anything already built that may break. Cases under a changed statement go back to draft and need review again.
-6. **On approval,** rename the draft over `solution-spec.yaml`, update the requirement files, copy in anything from [assets/solution-folder/](assets/solution-folder/) the folder is missing or that has changed, delete the finding, and run the requirement-file checks. A removed key is never reused.
+3. **Write the change** against the current format reference, with `format` and the schema comment updated. If `solution-spec.yaml` is tracked by git, edit it in place, so the person reviews the change as a diff. If it has uncommitted changes, first ask whether they'll commit or stash them or would rather you write a draft, because your edits would mix with theirs in the diff and undoing yours could lose theirs. If it isn't tracked, write the change as `solution-spec.draft.yaml` beside the approved spec.
+4. **Run the checks** against the changed spec, except those on requirement files.
+5. **Summarise and wait for approval:** what changes and why, and what it knocks on to. That means components whose own specs may now be out of date, requirement files added, removed or with a changed statement, and anything already built that may break. Cases under a changed statement go back to draft and need review again. Point to the change: the `git diff` command for an in-place edit, or the draft's path. If the person edits the file themselves, read it again before going on.
+6. **On approval,** rename the draft over `solution-spec.yaml` if you wrote one, update the requirement files, copy in anything from [assets/solution-folder/](assets/solution-folder/) the folder is missing or that has changed, delete the finding, and run the requirement-file checks. A removed key is never reused.
 7. **Report** which components need their specs revisited, so the finder knows where to pick up.
 
-If the person rejects the change, delete the finding, which makes the plan usable again. The finder carries on within the approved plan, or writes a new finding if it can't.
+If the person rejects the change, undo it, with `git restore solution-spec.yaml` for an in-place edit or by deleting the draft, and delete the finding, which makes the plan usable again. The finder carries on within the approved plan, or writes a new finding if it can't.
 
 As with the first plan, the spec holds the result, not how it was reached. The reason for a revision lives in your summary, and in the commit if the folder is under version control.
 
