@@ -1,6 +1,6 @@
 # Solution spec format
 
-A solution spec is a YAML file describing how a solution breaks down into components: what each one is for, what it owns and how they connect. It's named `solution-spec.yaml` and has a folder to itself. While it's still being reviewed it's named `solution-spec.draft.yaml`, and later stages ignore it until it's renamed. Its requirements are in [separate files](#requirement-files) beside it. If you've found one in a repo, it records the boundaries someone approved before the parts were specified or built. Problems found after approval are raised as files in a `findings/` folder beside it, and the spec itself changes only through the solution planner.
+A solution spec is a YAML file describing how a solution breaks down into components: what each one is for, what it owns and how they connect. It's named `solution-spec.yaml` and has a folder to itself. While it's still being reviewed it's named `solution-spec.draft.yaml`, and later stages ignore it until it's renamed. A revision under version control edits it in place instead, so the change shows as a diff. Its requirements are in [separate files](#requirement-files) beside it. If you've found one in a repo, it records the boundaries someone approved before the parts were specified or built. Problems found after approval are raised as files in a `findings/` folder beside it, and the spec itself changes only through the solution planner.
 
 **This version's link:** `https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md`
 
@@ -52,7 +52,7 @@ A requirement statement is one thing the solution must do or guarantee, written 
 
 ## Requirement files
 
-Each requirement is one [Gherkin](https://cucumber.io/docs/gherkin/reference/) file in a `requirements/` folder beside the spec, found from its key: `remind.at-most-weekly` is `requirements/remind/at-most-weekly.feature`. The key is the Feature's title, the statement is its description, and the test cases follow:
+Each requirement is one [Gherkin](https://cucumber.io/docs/gherkin/reference/) file in a `requirements/` folder beside the spec, found from its key: `remind.at-most-weekly` is `requirements/remind/at-most-weekly.feature`. The key is the Feature's title, the statement is its description, and the test cases follow. A revision outside version control drafts a new or changed requirement beside its file, as `requirements/remind/at-most-weekly.draft.feature`; later stages and the statement scripts ignore it until it's renamed:
 
 ```gherkin
 Feature: remind.at-most-weekly
@@ -120,7 +120,7 @@ A later chat that loads the cases could overfit to them without meaning to. The 
 
 | File | What it does |
 | --- | --- |
-| `scripts/list-requirement-statements.ps1` and `.sh` | Print every statement at once, without the cases, so later stages have no need to open the files. One is for Windows, the other for macOS and Linux, and neither needs anything installed |
+| `scripts/list-requirement-statements.ps1` and `.sh` | Print every statement at once, without the cases or any draft, so later stages have no need to open the files. One is for Windows, the other for macOS and Linux, and neither needs anything installed |
 | `AGENTS.md` | Says the folder belongs to the planner except `findings/`, how to raise a finding and where to get the skill, and asks agents to leave `requirements/` alone unless they're planning the solution or editing cases at the user's request |
 | `.ignore` | Keeps cases out of searches by tools that honour it, such as ripgrep. It doesn't stop direct reads |
 | `.gitignore` | Keeps `findings/` out of version control. Findings are working files, and the spec diff shows what changed |
@@ -210,7 +210,7 @@ An approved spec passes all of these:
 - **Format link:** `format` points at a fixed version of this reference, such as a tag, never a moving branch.
 - **No open findings:** `findings/` is empty or absent.
 - **References:** every key mentioned exists, and points at the right section.
-- **Requirement files:** every listed key has a file at its path, every file in a group folder has a key, and each file is valid Gherkin with its key as the Feature title, a statement and at least one case.
+- **Requirement files:** every listed key has a file at its path, every file in a group folder other than a `.draft.feature` has a key, and each file is valid Gherkin with its key as the Feature title, a statement and at least one case.
 - **Fields:** each entry has the fields its section and action require, and no others.
 - **Grouping:** no two requirements on the same component would be reviewed together. If they would, merge them.
 - **Ownership:** every requirement file is listed on at least one component, and every `build` or `modify` component lists at least one requirement.

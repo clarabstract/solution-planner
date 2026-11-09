@@ -2,7 +2,8 @@
 #
 # Run it with no arguments, on Windows. It looks in the requirements folder
 # above this script, and reads each .feature file only from its Feature line to
-# the first keyword after it, so cases can't reach the output. Problems are
+# the first keyword after it, so cases can't reach the output. Drafts
+# (.draft.feature) aren't approved yet and are skipped. Problems are
 # reported by key, never by quoting the file.
 
 $ErrorActionPreference = 'Stop'
@@ -50,7 +51,8 @@ if (-not (Test-Path -LiteralPath $requirements -PathType Container)) {
 
 $status = 0
 foreach ($group in Get-ChildItem -LiteralPath $requirements -Directory | Sort-Object Name) {
-    foreach ($file in Get-ChildItem -LiteralPath $group.FullName -Filter '*.feature' -File | Sort-Object Name) {
+    foreach ($file in Get-ChildItem -LiteralPath $group.FullName -Filter '*.feature' -File |
+            Where-Object { $_.Name -notlike '*.draft.feature' } | Sort-Object Name) {
         $key = "$($group.Name).$($file.BaseName)"
         $statement = Read-Statement $file.FullName
 

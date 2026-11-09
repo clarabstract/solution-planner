@@ -47,7 +47,7 @@ Ask your agent to plan or break down something new. A rough description is fine.
 - The summary lists what it inferred, with where each inference ended up in the draft, so you can object before anything is final
 - Once you approve, it renames the draft to `solution-spec.yaml` and writes the requirement files
 - You review the draft test cases, then start later work in a new session
-- After approval, the plan changes only through the skill. Later work that finds a problem writes it to `findings/` and stops; you then ask the skill to revise the plan in a new session. Bringing a spec written against an older format up to date works the same way. If `solution-spec.yaml` is tracked by git, a revision edits it in place so you review it with `git diff`, asking you first if the file has uncommitted changes; otherwise it goes in a `solution-spec.draft.yaml` beside it
+- After approval, the plan changes only through the skill. Later work that finds a problem writes it to `findings/` and stops; you then ask the skill to revise the plan in a new session. Bringing a spec written against an older format up to date works the same way. A revision changes the spec and the requirement files it touches together. If the solution folder is tracked by git, it edits them in place so you review the change with `git diff`, asking you first if any of them has uncommitted changes; otherwise it writes drafts beside them, `solution-spec.draft.yaml` and `<name>.draft.feature`
 
 ## Versions
 
