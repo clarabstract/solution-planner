@@ -1,15 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/clarabstract/solution-planner/v0.2/references/solution-spec.schema.json",
+  "$id": "https://raw.githubusercontent.com/clarabstract/solution-planner/v0.3/references/solution-spec.schema.json",
   "title": "Solution spec",
   "description": "How a solution breaks down into components: what each one is for, what it owns and how they connect. This covers the shape of the file. Checks across files and keys are listed in the format reference.",
   "type": "object",
-  "required": ["format", "problem", "budget", "stakes", "components"],
+  "required": ["format", "solution", "problem", "budget", "stakes", "components"],
   "additionalProperties": false,
   "properties": {
     "format": {
       "description": "Link to this version of the format reference. Always the first field, so anyone who finds the file can tell what it is.",
-      "const": "https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md"
+      "const": "https://github.com/clarabstract/solution-planner/blob/v0.3/references/solution-spec-format.md"
+    },
+    "solution": {
+      "description": "The solution's own name, in kebab-case. Another repo writes it before the colon when it refers to something here, as in invoice-reminders:requirements.remind.at-most-weekly.",
+      "$ref": "#/definitions/key"
     },
     "problem": {
       "description": "Who has the problem, how they cope today, and what success looks like, in a few sentences.",
@@ -62,10 +66,15 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
     },
-    "requirementKey": {
-      "description": "A key written as activity.name, which maps to requirements/activity/name.feature. Integrations use the reserved integrations group.",
+    "requirementReference": {
+      "description": "A reference to a requirement, written as requirements.activity.name, which is the file spec/requirements/activity/name.feature. Integrations use the reserved integrations group.",
       "type": "string",
-      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$"
+      "pattern": "^requirements\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "componentReference": {
+      "description": "A reference to a component of this spec, written as components.key.",
+      "type": "string",
+      "pattern": "^components\\.[a-z0-9]+(-[a-z0-9]+)*$"
     },
     "textList": {
       "type": "array",
@@ -87,20 +96,20 @@
       "additionalProperties": false,
       "properties": {
         "from": {
-          "description": "The component that depends on `to`.",
-          "$ref": "#/definitions/key"
+          "description": "The component that depends on `to`, as components.key.",
+          "$ref": "#/definitions/componentReference"
         },
         "to": {
-          "description": "The component `from` depends on.",
-          "$ref": "#/definitions/key"
+          "description": "The component `from` depends on, as components.key.",
+          "$ref": "#/definitions/componentReference"
         },
         "uses": {
           "description": "Capabilities used. These aren't final operation names, which come from the component's own spec.",
           "$ref": "#/definitions/textList"
         },
         "contract-owner": {
-          "description": "Whichever of `from` or `to` defines the contract, and always the external side if there is one.",
-          "$ref": "#/definitions/key"
+          "description": "Whichever of `from` or `to` defines the contract, written the same way, and always the external side if there is one.",
+          "$ref": "#/definitions/componentReference"
         }
       }
     },
@@ -130,11 +139,11 @@
           "$ref": "#/definitions/textList"
         },
         "requirements": {
-          "description": "Keys of the requirements and integrations it's responsible for. A shared requirement is listed on each component involved.",
+          "description": "References to the requirements and integrations it's responsible for, as requirements.activity.name. A shared requirement is listed on each component involved.",
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/definitions/requirementKey" }
+          "items": { "$ref": "#/definitions/requirementReference" }
         },
         "why-separate": {
           "description": "Which split reason applies, and how. Not needed if it's the only component being built.",

@@ -1,5 +1,6 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.2/references/solution-spec.schema.json
-format: https://github.com/clarabstract/solution-planner/blob/v0.2/references/solution-spec-format.md
+# yaml-language-server: $schema=https://raw.githubusercontent.com/clarabstract/solution-planner/v0.3/references/solution-spec.schema.json
+format: https://github.com/clarabstract/solution-planner/blob/v0.3/references/solution-spec-format.md
+solution: invoice-reminders
 
 problem: >
   A bookkeeper at a small firm chases overdue invoices by hand,
@@ -20,9 +21,9 @@ components:
     owns: [invoices, payment status, reminder history]
     does-not: [decide who gets reminded, contact clients]
     requirements:
-      - remind.at-most-weekly
-      - report.what-went-out
-      - integrations.weekly-round
+      - requirements.remind.at-most-weekly
+      - requirements.report.what-went-out
+      - requirements.integrations.weekly-round
     location: https://example.com/billing-service
     changes:
       - adds an operation to list overdue invoices
@@ -36,9 +37,9 @@ components:
     owns: [which invoices are due a reminder]
     does-not: [write the wording, store history]
     requirements:
-      - remind.after-a-week
-      - remind.at-most-weekly
-      - integrations.weekly-round
+      - requirements.remind.after-a-week
+      - requirements.remind.at-most-weekly
+      - requirements.integrations.weekly-round
     why-separate: >
       Deterministic logic that changes on its own schedule, separate
       from billing data
@@ -49,8 +50,8 @@ components:
     owns: [tone rules]
     does-not: [send anything, decide who gets reminded]
     requirements:
-      - remind.gentler-for-long-standing
-      - integrations.weekly-round
+      - requirements.remind.gentler-for-long-standing
+      - requirements.integrations.weekly-round
     why-separate: Judgement logic, kept apart from the script
   email-provider:
     kind: service
@@ -64,20 +65,20 @@ components:
 
 connections:
   script-reads-billing:
-    from: send-reminders
-    to: billing-service
+    from: components.send-reminders
+    to: components.billing-service
     uses: [list overdue invoices, record a reminder]
-    contract-owner: billing-service
+    contract-owner: components.billing-service
   script-gets-wording:
-    from: send-reminders
-    to: write-reminder
+    from: components.send-reminders
+    to: components.write-reminder
     uses: [draft wording for an invoice]
-    contract-owner: write-reminder
+    contract-owner: components.write-reminder
   script-sends-email:
-    from: send-reminders
-    to: email-provider
+    from: components.send-reminders
+    to: components.email-provider
     uses: [send an email]
-    contract-owner: email-provider
+    contract-owner: components.email-provider
 
 constraints:
   existing-billing:
